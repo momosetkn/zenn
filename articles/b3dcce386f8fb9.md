@@ -58,7 +58,7 @@ BUILD FAILED in 845ms
 ## 解決方法
 
 kaptとkspの相性問題らしく、build.gradle.ktsのpluginsでの記述順序を変えると解決するようです。
-kspと上にkaptを下にすると直るようです。
+kspを上にkaptを下にすると直るようです。
 
 ```kotlin
     id("com.google.devtools.ksp") version "1.9.10-1.0.13"
