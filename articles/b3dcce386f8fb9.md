@@ -88,7 +88,7 @@ data class Companies(
 [Kotlin サポート — Doma 2\.0 ドキュメント](https://doma.readthedocs.io/en/2.19.2/kotlin-support/)
 
 こちらに参考コードを載せています
-https://github.com/momosetkn/experimental-doma/blob/4a2118a1c47f139b381058c69361d58b4fd08588/src/main/kotlin/momosetkn/infras/doma/entities/entities.kt#L13
+https://github.com/momosetkn/experimental-doma/blob/4a2118a1c47f139b381058c69361d58b4fd08588/src/main/kotlin/momosetkn/infras/doma/entities/entities.kt#L11-L21
 
 # DomaでKotlin向けのラッパーを使う
 
