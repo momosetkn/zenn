@@ -29,17 +29,7 @@ from (select t2_.DEPARTMENT_NAME AS NAME, sum(t1_.SALARY) AS AMOUNT
       group by t2_.DEPARTMENT_NAME) t0_
 ```
 
-まず、サブクエリの結果のEntityをNativeSqlで定義します。
-
-```kotlin
-@Entity(immutable = true, metamodel = Metamodel())
-data class NameAndAmount(
-    @Column(name = "name") val name: String,
-    @Column(name = "amount") val amount: Int,
-)
-```
-
-subQueryの結果が、さきほど定義したサブクエリの結果のEntityと結果が順番・個数が一致するように書きます。
+まず、サブクエリとするクエリをNativeSqlで書きます。
 
 ```kotlin
 val d = Department_()
@@ -51,6 +41,17 @@ var subquery: SetOperand<Tuple2<String, Salary>> =
         .innerJoin(d) { c -> c.eq(e.departmentId, d.departmentId) }
         .groupBy(d.departmentName)
         .select(d.departmentName, sum(e.salary))
+```
+
+サブクエリの結果のEntityを定義します。
+さきほど書いたサブクエリの結果と順番・個数が一致するように書きます。
+
+```kotlin
+@Entity(immutable = true, metamodel = Metamodel())
+data class NameAndAmount(
+    @Column(name = "name") val name: String,
+    @Column(name = "amount") val amount: Int,
+)
 ```
 
 次に、サブクエリを内包するメインのクエリを書きます。ここで、サブクエリの結果のEntityMetamodelをfrom句のメソッドに指定します。
