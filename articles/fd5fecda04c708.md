@@ -60,3 +60,7 @@ private fun ensureReloadableAsync(environment: ApplicationEngineEnvironment) {
 `start(await = false)`、（起動後、blockしない）場合の実装例は以下を参考にしてください。
 
 https://github.com/momosetkn/ktor-auto-reload-error-logging/blob/b4c1c852defe29bf1806c28c75db260f6dc15da6/src/main/kotlin/com/example/WorkaroundApplication.kt
+
+# 最後にひとこと
+
+エラーログが出ないエラーは、ネットでの検索のしようがないので、とりあえずなんらかのエラーログは出て欲しいです。今回は、ktorでreloadを行うコードを探してデバッガーでで内部の挙動を見て分かりました。
