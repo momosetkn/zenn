@@ -19,16 +19,16 @@ issueは、以下で起票済みです。
 
 # auto-reload時にエラーとなるプラグインに気づく方法
 
-auto-reloadのときは、embeddedServerの戻り値が[ApplicationEngineEnvironmentReloading](https://github.com/ktorio/ktor/blob/273fc7d48df69c39541dc6007bc248efc39fbd5f/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L32)というクラスになる。
-このクラスに[io.ktor.server.engine.ApplicationEngineEnvironmentReloading#reload](https://github.com/ktorio/ktor/blob/273fc7d48df69c39541dc6007bc248efc39fbd5f/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L95-L102)が生えているので、サーバー起動後に、それを実行することで、エラーになってくれるので、問題のあるプラグインに気づくことができる。
+auto-reloadのときは、embeddedServerの戻り値が[ApplicationEngineEnvironmentReloading](https://github.com/ktorio/ktor/blob/2.3.8/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L32)というクラスになる。
+このクラスに[io.ktor.server.engine.ApplicationEngineEnvironmentReloading#reload](https://github.com/ktorio/ktor/blob/2.3.8/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L95-L102)が生えているので、サーバー起動後にそれを実行することでエラーになってくれるので、問題のあるプラグインに気づくことができる。
 
 ## では、なぜ実際のauto-reloadではなんでエラーのログが出ないのか？
 
 と思うことでしょう。
-実際のauto-reload時には、reloadメソッドとは別の[io.ktor.server.engine.ApplicationEngineEnvironmentReloading#currentApplication](https://github.com/ktorio/ktor/blob/273fc7d48df69c39541dc6007bc248efc39fbd5f/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L104-L141)というメソッドで処理がされていて、ここで必要であればreloadをするという処理が行われているらしい。
-それにより、reloadメソッドと実際のauto-reloadの挙動が異なるようです。
+前提の説明として、実際のauto-reload時には、reloadメソッドとは別の[io.ktor.server.engine.ApplicationEngineEnvironmentReloading#currentApplication](https://github.com/ktorio/ktor/blob/2.3.8/ktor-server/ktor-server-host-common/jvm/src/io/ktor/server/engine/ApplicationEngineEnvironmentReloading.kt#L104-L141)というメソッドで処理がされていて、ここで必要であればreloadをするという処理が行われているらしい（これ自体は問題ない）。
+で、currentApplicationを呼び出す側のエラーハンドリングがしっかりとされていないまま、Nettyを終了しているのが大まかな原因のようです。
 
-ktorがauto-reload時にpluginでエラーになると、Nettyが`io.netty.channel.AbstractChannelHandlerContext#invokeChannelRead(java.lang.Object)`から例外がスローされ、`io.netty.channel.AbstractChannelHandlerContext#invokeExceptionCaught(java.lang.Throwable)`で、エラーをキャッチしているようです。キャッチした後は、[io.ktor.server.netty.http1.NettyHttp1Handler#exceptionCaught](https://github.com/ktorio/ktor/blob/b9d20b4bbd54241c982f829ab097de50b6a0e06b/ktor-server/ktor-server-netty/jvm/src/io/ktor/server/netty/http1/NettyHttp1Handler.kt#L88)へ戻ってきて、エラー処理は何もしていないように見えます…。というのが原因です。
+ktorがauto-reload時にpluginでエラーになると、Nettyが`io.netty.channel.AbstractChannelHandlerContext#invokeChannelRead(java.lang.Object)`から例外がスローされ、`io.netty.channel.AbstractChannelHandlerContext#invokeExceptionCaught(java.lang.Throwable)`で、エラーをキャッチしているようです。キャッチした後は、[io.ktor.server.netty.http1.NettyHttp1Handler#exceptionCaught](https://github.com/ktorio/ktor/blob/2.3.8/ktor-server/ktor-server-netty/jvm/src/io/ktor/server/netty/http1/NettyHttp1Handler.kt#L90)へ戻ってきて、エラー処理は何もせずに、[io.ktor.server.netty.http1.NettyHttp1Handler#exceptionCaughtで、io.netty.channel.ChannelHandlerContext#close()を呼んで](https://github.com/ktorio/ktor/blob/2.3.8/ktor-server/ktor-server-netty/jvm/src/io/ktor/server/netty/http1/NettyHttp1Handler.kt#L104)Nettyを終了しているというのが原因です。
 
 # ワークアラウンド
 
