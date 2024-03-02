@@ -55,18 +55,28 @@ data class NameAndAmount(
 ```
 
 次に、サブクエリを内包するメインのクエリを書きます。ここで、サブクエリの結果のEntityMetamodelをfrom句のメソッドに指定します。
+例では、nativeSqlを使っていますが、entityqlを使っても同じように書けます。
 
 ```kotlin
 val nameAndAmount = NameAndAmount_()
 
-List<NameAndAmount> = list =
+List<NameAndAmount> list =
     nativeSql
         .from(nameAndAmount, subquery)
         .fetch()
 ```
 
 これで、サブクエリをfrom句に指定することができます。
-group byが設定されているSQLで、groupの数を取得したい場合などでも、この方法で取得することができます。
+group byが設定されているSQLで、groupの数を取得したい場合などでも、以下のように、この方法で取得することができます。
+```kotlin
+val nameAndAmount = NameAndAmount_()
+
+Int count =
+    nativeSql
+        .from(nameAndAmount, subquery)
+        .select(Expressions.count())
+        .single()
+```
 
 ## unionと組み合わせて使う
 
