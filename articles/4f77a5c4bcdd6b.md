@@ -169,14 +169,30 @@ fun <ENTITY2 : Any, ID2 : Any, META2 : EntityMetamodel<ENTITY2, ID2, META2>> Ent
 ```
 
 ```kotlin
+// companyに対して、employeeをjoinされている状態にする
+fun SelectQueryBuilder<InfraCompanies, String, _InfraCompanies>.ensureLeftJoinCompany(
+    metaSameCreatorCompany: _InfraCompanies,
+    metaEmployee: _InfraEmployees,
+) = ensureLeftJoin(metaSameCreatorCompany) {
+    metaCompany.id eq metaEmployee.companyId
+}
+
 val mainQuery = QueryDsl.from(metaCompany)
     .let {
         if (sameCreator) {
             // 検索条件に応じて、特定の場合のみjoinをする
-            it.ensureLeftJoin(metaSameCreatorCompany) { // ensureLeftJoinでjoinすることで、すでにjoin済みの場合はjoinしない
-                metaCompany.createdBy eq metaSameCreatorCompany.createdBy
-            }.where {
-                metaCompany.createdBy eq metaSameCreatorCompany.createdBy // この条件不要ですがwhereもここで書ける
+            it.ensureLeftJoinCompany(metaCompany, metaEmployee).where {
+                metaEmployee.name eq name
+            }
+        } else {
+            it
+        }
+    }
+    .let {
+        if (sameName) {
+            // 検索条件に応じて、特定の場合のみjoinをする
+            it.ensureLeftJoinCompany(metaCompany, metaEmployee).where { // ensureLeftJoinでjoinすることで、すでにjoin済みの場合はjoinしない
+                metaEmployee.email eq email
             }
         } else {
             it
