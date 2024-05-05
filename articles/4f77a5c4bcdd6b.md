@@ -21,8 +21,7 @@ class ConditionExtension<F : FilterScope<F>>(
         fromTo: Pair<T?, T?>,
     ) {
         val column = this
-        val from = fromTo.first
-        val to = fromTo.second
+        val (from, to) = fromTo
         return with(filterScope) {
             if (from != null && to == null) {
                 column greaterEq from
