@@ -179,7 +179,7 @@ fun SelectQueryBuilder<InfraCompanies, String, _InfraCompanies>.ensureLeftJoinCo
 
 val mainQuery = QueryDsl.from(metaCompany)
     .let {
-        if (sameCreator) {
+        if (name != null) {
             // 検索条件に応じて、特定の場合のみjoinをする
             it.ensureLeftJoinCompany(metaCompany, metaEmployee).where {
                 metaEmployee.name eq name
@@ -189,7 +189,7 @@ val mainQuery = QueryDsl.from(metaCompany)
         }
     }
     .let {
-        if (sameName) {
+        if (email != null) {
             // 検索条件に応じて、特定の場合のみjoinをする
             it.ensureLeftJoinCompany(metaCompany, metaEmployee).where { // ensureLeftJoinでjoinすることで、すでにjoin済みの場合はjoinしない
                 metaEmployee.email eq email
