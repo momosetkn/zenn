@@ -103,7 +103,7 @@ MySQLとPostgreSQLではcount(distinctをちゃんと実装しました。他の
 実装例を示します。
 
 ```kotlin
-        fun countDistinctMultiple(
+fun countDistinctMultiple(
     vararg expressions: ColumnExpression<*, *>,
 ): ColumnExpression<Long, Long> {
     val name = "countDistinctMultiple"
@@ -159,7 +159,7 @@ fun <ENTITY2 : Any, ID2 : Any, META2 : EntityMetamodel<ENTITY2, ID2, META2>> Ent
     on: OnDeclaration,
 ): EntitySelectQuery<ENTITY2> {
     val joins = (this.context as SelectContext<*, *, *>).joins
-    return if (joins.find { it.target == metamodel } != null) {
+    return if (joins.any { it.target == metamodel }) {
         this
     } else {
         leftJoin(Relationship(metamodel, on))
