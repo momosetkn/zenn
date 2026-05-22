@@ -4,7 +4,6 @@ emoji: "💎"
 type: "idea"
 topics: ["ruby", "hanami", "webframework", "update", "migration", "java", "ポエム"]
 published: true
-publication_name: "innoscouter"
 ---
 
 # はじめに
